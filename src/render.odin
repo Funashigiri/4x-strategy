@@ -58,7 +58,18 @@ draw_units :: proc(units: []Unit) {
 	}
 }
 
-SELECTION_COLOR :: rl.RAYWHITE
+SELECTION_COLOR   :: rl.RAYWHITE
+MOVE_TARGET_COLOR :: rl.Color{255, 255, 255, 170}
+
+// Куда может сходить выбранный юнит — точки в центрах соседних гексов.
+draw_move_targets :: proc(world: Map, units: []Unit, unit_index: int) {
+	buf: [6]Hex
+	for nb in map_neighbors(world, units[unit_index].pos, &buf) {
+		if can_move_to(world, units, unit_index, nb) {
+			rl.DrawCircleV(hex_to_pixel(nb, HEX_SIZE), HEX_SIZE * 0.2, MOVE_TARGET_COLOR)
+		}
+	}
+}
 
 // Выбранный юнит: белый контур гекса и пульсирующее кольцо вокруг фишки.
 draw_selection :: proc(unit: Unit, zoom: f32) {

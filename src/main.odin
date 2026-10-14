@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-VERSION :: "0.010"
+VERSION :: "0.011"
 TITLE   :: "4X Стратегия v" + VERSION
 
 WINDOW_WIDTH  :: 1280
@@ -77,9 +77,7 @@ update :: proc(game: ^Game, dt: f32) {
 		if map_contains(game.world, h) do game.hovered = h
 	}
 
-	if rl.IsMouseButtonPressed(.LEFT) {
-		game.selected = pick_unit(game.units[:], game.hovered)
-	}
+	if rl.IsMouseButtonPressed(.LEFT) do click_hex(game, game.hovered)
 
 	if rl.IsKeyPressed(.ESCAPE) {
 		if game.selected != nil {
@@ -90,6 +88,18 @@ update :: proc(game: ^Game, dt: f32) {
 	}
 }
 
+// Клик левой кнопкой: сходить выбранным юнитом на соседний гекс,
+// иначе выбрать юнит на гексе (или снять выбор, если там никого).
+click_hex :: proc(game: ^Game, clicked: Maybe(Hex)) {
+	i, selected := game.selected.?
+	h, on_map := clicked.?
+	if selected && on_map && can_move_to(game.world, game.units[:], i, h) {
+		game.units[i].pos = h // юнит остаётся выбранным
+		return
+	}
+	game.selected = pick_unit(game.units[:], clicked)
+}
+
 draw :: proc(game: Game) {
 	rl.ClearBackground(BACKGROUND_COLOR)
 
@@ -97,6 +107,7 @@ draw :: proc(game: Game) {
 	rl.BeginMode2D(game.camera)
 	draw_map(game.world)
 	if h, ok := game.hovered.?; ok do draw_hex_highlight(h, game.camera.zoom)
+	if i, ok := game.selected.?; ok do draw_move_targets(game.world, game.units[:], i)
 	draw_units(game.units[:])
 	if i, ok := game.selected.?; ok do draw_selection(game.units[i], game.camera.zoom)
 	rl.EndMode2D()

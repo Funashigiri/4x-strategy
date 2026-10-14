@@ -69,7 +69,7 @@ draw_ui :: proc(game: Game) {
 	}
 	draw_panel(lines[:], {0, 0}, UI_PANEL_MIN_WIDTH)
 
-	HELP :: "ЛКМ — выбрать юнит   ПКМ / WASD — двигать карту   Колёсико — масштаб   N — новая карта   Esc — снять выбор / выход"
+	HELP :: "ЛКМ — выбрать юнит / идти   ПКМ / WASD — двигать карту   Колёсико — масштаб   N — новая карта   Esc — снять выбор / выход"
 	screen_h := f32(rl.GetScreenHeight())
 	rl.DrawRectangleV({0, screen_h - UI_HELP_HEIGHT}, {measure_text(HELP) + 2 * UI_PADDING, UI_HELP_HEIGHT}, UI_PANEL_COLOR)
 	draw_text(HELP, UI_PADDING, screen_h - 28, rl.LIGHTGRAY)
@@ -81,6 +81,7 @@ draw_ui :: proc(game: Game) {
 			{fmt.ctprintf("%s", UNIT_NAMES[unit.kind]), rl.RAYWHITE},
 			{fmt.ctprintf("Местность: %s", TERRAIN_NAMES[map_get(game.world, unit.pos).terrain]), rl.LIGHTGRAY},
 			{fmt.ctprintf("Гекс q=%d r=%d", unit.pos.q, unit.pos.r), rl.LIGHTGRAY},
+			{"ЛКМ по точке — идти", rl.GRAY},
 		}
 		size := panel_size(unit_lines[:], UI_UNIT_PANEL_WIDTH)
 		draw_panel(unit_lines[:], {0, screen_h - UI_HELP_HEIGHT - 8 - size.y}, UI_UNIT_PANEL_WIDTH)

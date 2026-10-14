@@ -35,6 +35,15 @@ pick_unit :: proc(units: []Unit, clicked: Maybe(Hex)) -> Maybe(int) {
 	return nil
 }
 
+// Может ли юнит сходить на гекс: соседний, проходимый и не занятый другим юнитом.
+can_move_to :: proc(world: Map, units: []Unit, unit_index: int, target: Hex) -> bool {
+	if hex_distance(units[unit_index].pos, target) != 1 do return false
+	tile := map_get(world, target)
+	if tile == nil || !terrain_is_passable(tile.terrain) do return false
+	_, occupied := unit_index_at(units, target)
+	return !occupied
+}
+
 // Стартовая клетка: проходимая суша, ближайшая к центру карты.
 // ok = false, если суши нет вовсе.
 find_start_position :: proc(world: Map) -> (pos: Hex, ok: bool) {
