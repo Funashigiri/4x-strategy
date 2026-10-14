@@ -27,6 +27,11 @@ terrain_is_water :: proc(t: Terrain) -> bool {
 	return t == .Ocean || t == .Coast
 }
 
+// Может ли наземный юнит стоять на местности: суша, кроме гор.
+terrain_is_passable :: proc(t: Terrain) -> bool {
+	return !terrain_is_water(t) && t != .Mountains
+}
+
 Tile :: struct {
 	terrain: Terrain,
 }

@@ -43,6 +43,37 @@ draw_hex_highlight :: proc(h: Hex, zoom: f32) {
 	rl.DrawPolyLinesEx(center, 6, HEX_SIZE, 30, 2 / zoom, HOVER_OUTLINE_COLOR)
 }
 
+UNIT_RADIUS        :: HEX_SIZE * 0.55
+UNIT_OUTLINE_COLOR :: rl.Color{20, 20, 20, 255}
+UNIT_ICON_COLOR    :: rl.RAYWHITE
+PLAYER_COLOR       :: rl.Color{196, 40, 40, 255} // пока игрок один
+
+// Юнит — фишка цвета игрока со значком типа.
+draw_units :: proc(units: []Unit) {
+	for u in units {
+		center := hex_to_pixel(u.pos, HEX_SIZE)
+		rl.DrawCircleV(center, UNIT_RADIUS + 1, UNIT_OUTLINE_COLOR)
+		rl.DrawCircleV(center, UNIT_RADIUS, PLAYER_COLOR)
+		draw_unit_icon(u.kind, center)
+	}
+}
+
+// Значки рисуются линиями, поэтому чёткие при любом зуме.
+draw_unit_icon :: proc(kind: Unit_Kind, c: rl.Vector2) {
+	switch kind {
+	case .Warrior:
+		// Скрещённые мечи: два клинка и две гарды у рукоятей.
+		S :: UNIT_RADIUS * 0.55 // полудлина клинка по осям
+		G :: S * 0.3            // полуширина гарды
+		H :: S * 0.55           // где гарда
+		W :: 1.5                // толщина линий
+		rl.DrawLineEx(c + {-S, -S}, c + {S, S}, W, UNIT_ICON_COLOR)
+		rl.DrawLineEx(c + {S, -S}, c + {-S, S}, W, UNIT_ICON_COLOR)
+		rl.DrawLineEx(c + {H - G, H + G}, c + {H + G, H - G}, W, UNIT_ICON_COLOR)
+		rl.DrawLineEx(c + {-H - G, H - G}, c + {-H + G, H + G}, W, UNIT_ICON_COLOR)
+	}
+}
+
 // Прямоугольник, который карта занимает в мировых координатах.
 map_world_rect :: proc(world: Map) -> rl.Rectangle {
 	hex_width: f32 = HEX_SIZE * math.SQRT_THREE
