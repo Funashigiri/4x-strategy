@@ -48,12 +48,14 @@ UNIT_OUTLINE_COLOR :: rl.Color{20, 20, 20, 255}
 UNIT_ICON_COLOR    :: rl.RAYWHITE
 PLAYER_COLOR       :: rl.Color{196, 40, 40, 255} // пока игрок один
 
-// Юнит — фишка цвета игрока со значком типа.
+PLAYER_COLOR_DONE  :: rl.Color{110, 40, 40, 255} // юнит без очков движения
+
+// Юнит — фишка цвета игрока со значком типа. Без очков движения — темнее.
 draw_units :: proc(units: []Unit) {
 	for u in units {
 		center := hex_to_pixel(u.pos, HEX_SIZE)
 		rl.DrawCircleV(center, UNIT_RADIUS + 1, UNIT_OUTLINE_COLOR)
-		rl.DrawCircleV(center, UNIT_RADIUS, PLAYER_COLOR)
+		rl.DrawCircleV(center, UNIT_RADIUS, PLAYER_COLOR if u.moves_left > 0 else PLAYER_COLOR_DONE)
 		draw_unit_icon(u.kind, center)
 	}
 }

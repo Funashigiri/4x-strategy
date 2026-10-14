@@ -18,7 +18,7 @@ make_move_test_game :: proc() -> Game {
 	// .SE остаётся водой.
 	set(game.world, hex_neighbor(hex_neighbor(u, .E), .E), .Grassland) // через один гекс
 
-	append(&game.units, Unit{.Warrior, u}, Unit{.Warrior, hex_neighbor(u, .NE)})
+	append(&game.units, unit_make(.Warrior, u), unit_make(.Warrior, hex_neighbor(u, .NE)))
 	return game
 }
 
@@ -52,8 +52,49 @@ test_can_move_off_map :: proc(t: ^testing.T) {
 	defer map_destroy(&game.world)
 	corner := hex_from_offset(0, 0)
 	map_get(game.world, corner).terrain = .Grassland
-	units := []Unit{{.Warrior, corner}}
+	units := []Unit{unit_make(.Warrior, corner)}
 	testing.expect(t, !can_move_to(game.world, units, 0, hex_neighbor(corner, .W)))
+}
+
+@(test)
+test_move_costs :: proc(t: ^testing.T) {
+	game := make_move_test_game()
+	defer destroy_move_test_game(&game)
+	units := game.units[:]
+	u := units[0].pos
+	testing.expect_value(t, units[0].moves_left, UNIT_MOVES[.Warrior])
+
+	// Луга стоят 1: было 2, стало 1.
+	move_unit(game.world, &units[0], hex_neighbor(u, .E))
+	testing.expect_value(t, units[0].moves_left, 1)
+
+	// Обратно на луга — 0, и ходить больше нельзя никуда.
+	move_unit(game.world, &units[0], u)
+	testing.expect_value(t, units[0].moves_left, 0)
+	for dir in Hex_Direction {
+		testing.expectf(t, !can_move_to(game.world, units, 0, hex_neighbor(u, dir)), "moved %v with 0 moves", dir)
+	}
+
+	// Лес стоит 2: с полными очками — сразу 0.
+	units[0].moves_left = 2
+	move_unit(game.world, &units[0], hex_neighbor(u, .NW))
+	testing.expect_value(t, units[0].moves_left, 0)
+
+	// Правило Civ 5: с 1 очком в холмы (стоимость 2) войти можно, очков станет 0.
+	units[0] = unit_make(.Warrior, u)
+	units[0].moves_left = 1
+	testing.expect(t, can_move_to(game.world, units, 0, hex_neighbor(u, .SW)))
+	move_unit(game.world, &units[0], hex_neighbor(u, .SW))
+	testing.expect_value(t, units[0].moves_left, 0)
+}
+
+@(test)
+test_terrain_move_cost :: proc(t: ^testing.T) {
+	// Проходимо (стоимость > 0) ровно то же, что раньше: суша, кроме гор.
+	for terrain in Terrain {
+		expected := !terrain_is_water(terrain) && terrain != .Mountains
+		testing.expectf(t, terrain_is_passable(terrain) == expected, "%v: cost %v", terrain, TERRAIN_MOVE_COST[terrain])
+	}
 }
 
 @(test)

@@ -59,7 +59,12 @@ draw_ui :: proc(game: Game) {
 	})
 	if h, ok := game.hovered.?; ok {
 		col, row := hex_to_offset(h)
-		append(&lines, Ui_Line{fmt.ctprintf("Местность: %s", TERRAIN_NAMES[map_get(game.world, h).terrain]), rl.RAYWHITE})
+		terrain := map_get(game.world, h).terrain
+		if cost := TERRAIN_MOVE_COST[terrain]; cost > 0 {
+			append(&lines, Ui_Line{fmt.ctprintf("Местность: %s   (движение %d)", TERRAIN_NAMES[terrain], cost), rl.RAYWHITE})
+		} else {
+			append(&lines, Ui_Line{fmt.ctprintf("Местность: %s   (непроходимо)", TERRAIN_NAMES[terrain]), rl.RAYWHITE})
+		}
 		if unit := unit_at(game.units[:], h); unit != nil {
 			append(&lines, Ui_Line{fmt.ctprintf("Юнит: %s", UNIT_NAMES[unit.kind]), rl.RAYWHITE})
 		}
@@ -77,11 +82,13 @@ draw_ui :: proc(game: Game) {
 	// Выбранный юнит — панель слева внизу, над подсказкой.
 	if i, ok := game.selected.?; ok {
 		unit := game.units[i]
+		has_moves := unit.moves_left > 0
 		unit_lines := [?]Ui_Line {
 			{fmt.ctprintf("%s", UNIT_NAMES[unit.kind]), rl.RAYWHITE},
+			{fmt.ctprintf("Движение: %d/%d", unit.moves_left, UNIT_MOVES[unit.kind]), rl.RAYWHITE if has_moves else rl.ORANGE},
 			{fmt.ctprintf("Местность: %s", TERRAIN_NAMES[map_get(game.world, unit.pos).terrain]), rl.LIGHTGRAY},
 			{fmt.ctprintf("Гекс q=%d r=%d", unit.pos.q, unit.pos.r), rl.LIGHTGRAY},
-			{"ЛКМ по точке — идти", rl.GRAY},
+			{"ЛКМ по точке — идти" if has_moves else "Очки движения кончились", rl.GRAY},
 		}
 		size := panel_size(unit_lines[:], UI_UNIT_PANEL_WIDTH)
 		draw_panel(unit_lines[:], {0, screen_h - UI_HELP_HEIGHT - 8 - size.y}, UI_UNIT_PANEL_WIDTH)

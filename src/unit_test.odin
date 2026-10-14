@@ -35,14 +35,14 @@ test_start_position_no_land :: proc(t: ^testing.T) {
 
 @(test)
 test_unit_at :: proc(t: ^testing.T) {
-	units := []Unit{{.Warrior, {1, 2}}, {.Warrior, {3, 4}}}
+	units := []Unit{unit_make(.Warrior, {1, 2}), unit_make(.Warrior, {3, 4})}
 	testing.expect(t, unit_at(units, {3, 4}) == &units[1])
 	testing.expect(t, unit_at(units, {0, 0}) == nil)
 }
 
 @(test)
 test_pick_unit :: proc(t: ^testing.T) {
-	units := []Unit{{.Warrior, {1, 2}}, {.Warrior, {3, 4}}}
+	units := []Unit{unit_make(.Warrior, {1, 2}), unit_make(.Warrior, {3, 4})}
 	testing.expect_value(t, pick_unit(units, Hex{3, 4}), Maybe(int)(1))
 	testing.expect_value(t, pick_unit(units, Hex{1, 2}), Maybe(int)(0))
 	testing.expect_value(t, pick_unit(units, Hex{0, 0}), Maybe(int)(nil)) // пустой гекс

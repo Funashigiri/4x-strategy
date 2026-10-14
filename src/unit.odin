@@ -9,9 +9,20 @@ UNIT_NAMES := [Unit_Kind]string {
 	.Warrior = "Воин",
 }
 
+// Очки движения за ход.
+@(rodata)
+UNIT_MOVES := [Unit_Kind]i32 {
+	.Warrior = 2,
+}
+
 Unit :: struct {
-	kind: Unit_Kind,
-	pos:  Hex,
+	kind:       Unit_Kind,
+	pos:        Hex,
+	moves_left: i32, // сколько очков движения осталось на этот ход
+}
+
+unit_make :: proc(kind: Unit_Kind, pos: Hex) -> Unit {
+	return {kind = kind, pos = pos, moves_left = UNIT_MOVES[kind]}
 }
 
 unit_index_at :: proc(units: []Unit, h: Hex) -> (index: int, ok: bool) {
@@ -35,13 +46,24 @@ pick_unit :: proc(units: []Unit, clicked: Maybe(Hex)) -> Maybe(int) {
 	return nil
 }
 
-// Может ли юнит сходить на гекс: соседний, проходимый и не занятый другим юнитом.
+// Может ли юнит сходить на гекс: остались очки движения,
+// гекс соседний, проходимый и не занят другим юнитом.
 can_move_to :: proc(world: Map, units: []Unit, unit_index: int, target: Hex) -> bool {
+	if units[unit_index].moves_left <= 0 do return false
 	if hex_distance(units[unit_index].pos, target) != 1 do return false
 	tile := map_get(world, target)
 	if tile == nil || !terrain_is_passable(tile.terrain) do return false
 	_, occupied := unit_index_at(units, target)
 	return !occupied
+}
+
+// Сходить на соседний гекс (проверять заранее через can_move_to).
+// Как в Civ 5: если очков меньше стоимости местности, войти всё равно можно —
+// просто потратятся все оставшиеся.
+move_unit :: proc(world: Map, unit: ^Unit, target: Hex) {
+	cost := TERRAIN_MOVE_COST[map_get(world, target).terrain]
+	unit.pos = target
+	unit.moves_left = max(0, unit.moves_left - cost)
 }
 
 // Стартовая клетка: проходимая суша, ближайшая к центру карты.

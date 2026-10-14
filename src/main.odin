@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-VERSION :: "0.011"
+VERSION :: "0.012"
 TITLE   :: "4X Стратегия v" + VERSION
 
 WINDOW_WIDTH  :: 1280
@@ -61,7 +61,7 @@ start_new_map :: proc(game: ^Game, seed: i64) {
 	game.selected = nil
 	clear(&game.units)
 	if pos, ok := find_start_position(game.world); ok {
-		append(&game.units, Unit{kind = .Warrior, pos = pos})
+		append(&game.units, unit_make(.Warrior, pos))
 	}
 }
 
@@ -94,7 +94,7 @@ click_hex :: proc(game: ^Game, clicked: Maybe(Hex)) {
 	i, selected := game.selected.?
 	h, on_map := clicked.?
 	if selected && on_map && can_move_to(game.world, game.units[:], i, h) {
-		game.units[i].pos = h // юнит остаётся выбранным
+		move_unit(game.world, &game.units[i], h) // юнит остаётся выбранным
 		return
 	}
 	game.selected = pick_unit(game.units[:], clicked)

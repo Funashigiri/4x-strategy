@@ -27,9 +27,22 @@ terrain_is_water :: proc(t: Terrain) -> bool {
 	return t == .Ocean || t == .Coast
 }
 
+// Сколько очков движения стоит войти на местность. 0 — войти нельзя.
+@(rodata)
+TERRAIN_MOVE_COST := [Terrain]i32 {
+	.Ocean     = 0,
+	.Coast     = 0,
+	.Grassland = 1,
+	.Plains    = 1,
+	.Desert    = 1,
+	.Forest    = 2,
+	.Hills     = 2,
+	.Mountains = 0,
+}
+
 // Может ли наземный юнит стоять на местности: суша, кроме гор.
 terrain_is_passable :: proc(t: Terrain) -> bool {
-	return !terrain_is_water(t) && t != .Mountains
+	return TERRAIN_MOVE_COST[t] > 0
 }
 
 Tile :: struct {
