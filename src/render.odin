@@ -5,7 +5,9 @@ import rl "vendor:raylib"
 
 HEX_SIZE :: 16 // радиус гекса в мировых пикселях
 
-HEX_OUTLINE_COLOR :: rl.Color{24, 56, 96, 255}
+HEX_OUTLINE_COLOR   :: rl.Color{24, 56, 96, 255}
+HOVER_FILL_COLOR    :: rl.Color{255, 255, 255, 40}
+HOVER_OUTLINE_COLOR :: rl.Color{255, 230, 120, 255}
 
 @(rodata)
 TERRAIN_COLORS := [Terrain]rl.Color {
@@ -25,6 +27,13 @@ draw_map :: proc(world: Map) {
 			rl.DrawPolyLines(center, 6, HEX_SIZE, 30, HEX_OUTLINE_COLOR)
 		}
 	}
+}
+
+draw_hex_highlight :: proc(h: Hex, zoom: f32) {
+	center := hex_to_pixel(h, HEX_SIZE)
+	rl.DrawPoly(center, 6, HEX_SIZE, 30, HOVER_FILL_COLOR)
+	// Толщина контура — 2 пикселя экрана при любом зуме.
+	rl.DrawPolyLinesEx(center, 6, HEX_SIZE, 30, 2 / zoom, HOVER_OUTLINE_COLOR)
 }
 
 // Прямоугольник, который карта занимает в мировых координатах.

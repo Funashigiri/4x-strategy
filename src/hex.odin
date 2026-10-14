@@ -47,6 +47,28 @@ hex_to_pixel :: proc(h: Hex, size: f32) -> [2]f32 {
 	}
 }
 
+// Гекс, в который попадает точка (обратное к hex_to_pixel).
+hex_from_pixel :: proc(p: [2]f32, size: f32) -> Hex {
+	q := (math.SQRT_THREE / 3 * p.x - p.y / 3) / size
+	r := (2.0 / 3 * p.y) / size
+	return hex_round(q, r)
+}
+
+// Округляет дробные осевые координаты до ближайшего гекса.
+// Округлять q и r по отдельности нельзя — у границ получится чужой гекс.
+// Поэтому округляем все три кубические координаты и чиним ту, что ушла дальше всех.
+hex_round :: proc(q, r: f32) -> Hex {
+	s := -q - r
+	rq, rr, rs := math.round(q), math.round(r), math.round(s)
+	dq, dr, ds := abs(rq - q), abs(rr - r), abs(rs - s)
+	if dq > dr && dq > ds {
+		rq = -rr - rs
+	} else if dr > ds {
+		rr = -rq - rs
+	}
+	return {i32(rq), i32(rr)}
+}
+
 // Карта хранится прямоугольником в offset-координатах "odd-r":
 // нечётные строки сдвинуты на полгекса вправо.
 hex_from_offset :: proc(col, row: i32) -> Hex {
