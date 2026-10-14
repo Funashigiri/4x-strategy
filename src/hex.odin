@@ -1,5 +1,7 @@
 package game
 
+import "core:math"
+
 // Гекс в осевых (axial) координатах. Гексы "pointy-top" (вершиной вверх).
 // Третья, кубическая, координата вычисляется: s = -q - r.
 // Подробно про гексовую математику: https://www.redblobgames.com/grids/hexagons/
@@ -33,6 +35,16 @@ hex_add :: proc(a, b: Hex) -> Hex {
 
 hex_neighbor :: proc(h: Hex, dir: Hex_Direction) -> Hex {
 	return hex_add(h, HEX_DIRECTIONS[dir])
+}
+
+// Центр гекса в пикселях относительно центра гекса (0, 0).
+// size — радиус гекса (от центра до вершины).
+hex_to_pixel :: proc(h: Hex, size: f32) -> [2]f32 {
+	q, r := f32(h.q), f32(h.r)
+	return {
+		size * math.SQRT_THREE * (q + r / 2),
+		size * 1.5 * r,
+	}
 }
 
 // Карта хранится прямоугольником в offset-координатах "odd-r":

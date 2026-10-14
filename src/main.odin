@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-VERSION :: "0.002"
+VERSION :: "0.003"
 TITLE   :: "4X Strategy v" + VERSION
 
 WINDOW_WIDTH  :: 1280
@@ -39,6 +39,8 @@ update :: proc(dt: f32) {
 
 draw :: proc(world: Map) {
 	rl.ClearBackground(BACKGROUND_COLOR)
+
+	draw_map(world)
 
 	// Стандартный шрифт raylib не знает кириллицу, поэтому текст на экране пока по-английски.
 	rl.DrawText(TITLE, 10, 10, 20, rl.RAYWHITE)

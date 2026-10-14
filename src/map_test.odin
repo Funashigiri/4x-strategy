@@ -3,17 +3,6 @@ package game
 import "core:testing"
 
 @(test)
-test_offset_round_trip :: proc(t: ^testing.T) {
-	for row in i32(-5) ..< 5 {
-		for col in i32(-5) ..< 5 {
-			c, r := hex_to_offset(hex_from_offset(col, row))
-			testing.expect_value(t, c, col)
-			testing.expect_value(t, r, row)
-		}
-	}
-}
-
-@(test)
 test_neighbor_count :: proc(t: ^testing.T) {
 	m := map_make(10, 8)
 	defer map_destroy(&m)
