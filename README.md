@@ -10,6 +10,7 @@
 ```bat
 build.bat        :: собрать в build\game.exe
 build.bat run    :: собрать и запустить
+build.bat test   :: прогнать тесты
 ```
 
 По умолчанию компилятор ищется в `C:\odin\odin.exe`, другой путь можно задать через `set ODIN=...`.
