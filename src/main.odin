@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-VERSION :: "0.006"
+VERSION :: "0.007"
 TITLE   :: "4X Стратегия v" + VERSION
 
 WINDOW_WIDTH  :: 1280
@@ -32,6 +32,7 @@ main :: proc() {
 	game: Game
 	game.world = map_make(MAP_WIDTH, MAP_HEIGHT)
 	defer map_destroy(&game.world)
+	map_fill_demo_island(&game.world)
 	game.camera = camera_make(game.world)
 
 	// Игровой цикл: ввод/логика -> отрисовка. Esc закрывает окно (по умолчанию в raylib).

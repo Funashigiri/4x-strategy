@@ -16,6 +16,28 @@ test_offset_round_trip :: proc(t: ^testing.T) {
 }
 
 @(test)
+test_hex_distance :: proc(t: ^testing.T) {
+	h := Hex{2, -1}
+	testing.expect_value(t, hex_distance(h, h), 0)
+	for dir in Hex_Direction {
+		testing.expect_value(t, hex_distance(h, hex_neighbor(h, dir)), 1)
+	}
+	testing.expect_value(t, hex_distance({0, 0}, {3, -1}), 3)
+	testing.expect_value(t, hex_distance({3, -1}, {0, 0}), 3)
+
+	// На расстоянии k от гекса лежит ровно 6k гексов (кольцо).
+	for k in i32(1) ..= 5 {
+		count: i32
+		for q in i32(-10) ..= 10 {
+			for r in i32(-10) ..= 10 {
+				if hex_distance(h, {h.q + q, h.r + r}) == k do count += 1
+			}
+		}
+		testing.expectf(t, count == 6 * k, "ring %v: %v hexes", k, count)
+	}
+}
+
+@(test)
 test_hex_to_pixel :: proc(t: ^testing.T) {
 	SIZE :: 10
 

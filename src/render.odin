@@ -5,13 +5,20 @@ import rl "vendor:raylib"
 
 HEX_SIZE :: 16 // радиус гекса в мировых пикселях
 
-HEX_OUTLINE_COLOR   :: rl.Color{24, 56, 96, 255}
+HEX_OUTLINE_COLOR   :: rl.Color{0, 0, 0, 45} // полупрозрачный — подходит к любой местности
 HOVER_FILL_COLOR    :: rl.Color{255, 255, 255, 40}
 HOVER_OUTLINE_COLOR :: rl.Color{255, 230, 120, 255}
 
 @(rodata)
 TERRAIN_COLORS := [Terrain]rl.Color {
-	.Ocean = {38, 84, 140, 255},
+	.Ocean     = {38, 84, 140, 255},
+	.Coast     = {66, 130, 182, 255},
+	.Grassland = {92, 156, 72, 255},
+	.Plains    = {168, 168, 88, 255},
+	.Desert    = {222, 200, 132, 255},
+	.Forest    = {40, 104, 52, 255},
+	.Hills     = {140, 118, 80, 255},
+	.Mountains = {150, 146, 142, 255},
 }
 
 // Мировые координаты: центр гекса (0, 0) — в начале координат.

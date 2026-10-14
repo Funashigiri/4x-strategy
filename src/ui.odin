@@ -43,7 +43,7 @@ measure_text :: proc(text: cstring) -> f32 {
 
 // Интерфейс поверх карты, в экранных координатах.
 draw_ui :: proc(game: Game) {
-	rl.DrawRectangle(0, 0, 420, 110, UI_PANEL_COLOR)
+	rl.DrawRectangle(0, 0, 420, 134, UI_PANEL_COLOR)
 	draw_text(TITLE, 10, 8, rl.RAYWHITE)
 	draw_text(rl.TextFormat("FPS: %d", rl.GetFPS()), 10, 32, rl.LIME)
 	draw_text(
@@ -52,9 +52,12 @@ draw_ui :: proc(game: Game) {
 	)
 	if h, ok := game.hovered.?; ok {
 		col, row := hex_to_offset(h)
-		draw_text(rl.TextFormat("Гекс q=%d r=%d   (столбец %d, строка %d)", h.q, h.r, col, row), 10, 80, rl.LIGHTGRAY)
+		tile := map_get(game.world, h)
+		draw_text(rl.TextFormat("Местность: %s", TERRAIN_NAMES[tile.terrain]), 10, 80, rl.RAYWHITE)
+		draw_text(rl.TextFormat("Гекс q=%d r=%d   (столбец %d, строка %d)", h.q, h.r, col, row), 10, 104, rl.LIGHTGRAY)
 	} else {
-		draw_text("Гекс —", 10, 80, rl.LIGHTGRAY)
+		draw_text("Местность: —", 10, 80, rl.LIGHTGRAY)
+		draw_text("Гекс —", 10, 104, rl.LIGHTGRAY)
 	}
 
 	HELP :: "WASD / стрелки / правая кнопка мыши — двигать карту,   колёсико — масштаб"

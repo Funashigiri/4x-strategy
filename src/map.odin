@@ -1,8 +1,26 @@
 package game
 
-// Пока вся карта — океан. Остальные типы местности появятся в 0.006.
 Terrain :: enum u8 {
 	Ocean,
+	Coast,
+	Grassland,
+	Plains,
+	Desert,
+	Forest,
+	Hills,
+	Mountains,
+}
+
+@(rodata)
+TERRAIN_NAMES := [Terrain]string {
+	.Ocean     = "Океан",
+	.Coast     = "Мелководье",
+	.Grassland = "Луга",
+	.Plains    = "Равнина",
+	.Desert    = "Пустыня",
+	.Forest    = "Лес",
+	.Hills     = "Холмы",
+	.Mountains = "Горы",
 }
 
 Tile :: struct {

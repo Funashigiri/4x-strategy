@@ -37,6 +37,13 @@ hex_neighbor :: proc(h: Hex, dir: Hex_Direction) -> Hex {
 	return hex_add(h, HEX_DIRECTIONS[dir])
 }
 
+// Расстояние в шагах между гексами (половина суммы разностей кубических координат).
+hex_distance :: proc(a, b: Hex) -> i32 {
+	dq := a.q - b.q
+	dr := a.r - b.r
+	return (abs(dq) + abs(dr) + abs(dq + dr)) / 2
+}
+
 // Центр гекса в пикселях относительно центра гекса (0, 0).
 // size — радиус гекса (от центра до вершины).
 hex_to_pixel :: proc(h: Hex, size: f32) -> [2]f32 {

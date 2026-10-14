@@ -38,6 +38,29 @@ test_neighbors_symmetric :: proc(t: ^testing.T) {
 }
 
 @(test)
+test_demo_island :: proc(t: ^testing.T) {
+	m := map_make(40, 24)
+	defer map_destroy(&m)
+	map_fill_demo_island(&m)
+
+	// На демо-карте должен встретиться каждый тип местности.
+	seen: bit_set[Terrain]
+	for tile in m.tiles do seen += {tile.terrain}
+	testing.expectf(t, seen == ~bit_set[Terrain]{}, "missing terrain: %v", ~seen)
+
+	testing.expect_value(t, map_get(m, hex_from_offset(20, 12)).terrain, Terrain.Mountains)
+	testing.expect_value(t, map_get(m, hex_from_offset(0, 0)).terrain, Terrain.Ocean)
+	testing.expect_value(t, map_get(m, hex_from_offset(39, 23)).terrain, Terrain.Ocean)
+}
+
+@(test)
+test_terrain_names :: proc(t: ^testing.T) {
+	for name, terrain in TERRAIN_NAMES {
+		testing.expectf(t, len(name) > 0, "%v has no name", terrain)
+	}
+}
+
+@(test)
 test_map_get :: proc(t: ^testing.T) {
 	m := map_make(10, 8)
 	defer map_destroy(&m)
