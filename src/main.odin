@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-VERSION :: "0.007"
+VERSION :: "0.008"
 TITLE   :: "4X Стратегия v" + VERSION
 
 WINDOW_WIDTH  :: 1280
@@ -15,6 +15,7 @@ BACKGROUND_COLOR :: rl.Color{20, 24, 32, 255}
 
 Game :: struct {
 	world:   Map,
+	seed:    i64, // зерно генерации текущей карты
 	camera:  rl.Camera2D,
 	hovered: Maybe(Hex), // гекс под курсором; nil, если курсор не над картой
 }
@@ -32,7 +33,8 @@ main :: proc() {
 	game: Game
 	game.world = map_make(MAP_WIDTH, MAP_HEIGHT)
 	defer map_destroy(&game.world)
-	map_fill_demo_island(&game.world)
+	game.seed = random_seed()
+	map_generate(&game.world, game.seed)
 	game.camera = camera_make(game.world)
 
 	// Игровой цикл: ввод/логика -> отрисовка. Esc закрывает окно (по умолчанию в raylib).
@@ -47,6 +49,11 @@ main :: proc() {
 
 update :: proc(game: ^Game, dt: f32) {
 	camera_update(&game.camera, game.world, dt)
+
+	if rl.IsKeyPressed(.N) {
+		game.seed = random_seed()
+		map_generate(&game.world, game.seed)
+	}
 
 	game.hovered = nil
 	if rl.IsCursorOnScreen() {

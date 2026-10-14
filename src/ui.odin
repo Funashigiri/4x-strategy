@@ -47,7 +47,7 @@ draw_ui :: proc(game: Game) {
 	draw_text(TITLE, 10, 8, rl.RAYWHITE)
 	draw_text(rl.TextFormat("FPS: %d", rl.GetFPS()), 10, 32, rl.LIME)
 	draw_text(
-		rl.TextFormat("Карта %d×%d   Масштаб ×%.2f", game.world.width, game.world.height, game.camera.zoom),
+		rl.TextFormat("Карта %d×%d   Зерно %d   Масштаб ×%.2f", game.world.width, game.world.height, game.seed, game.camera.zoom),
 		10, 56, rl.LIGHTGRAY,
 	)
 	if h, ok := game.hovered.?; ok {
@@ -60,7 +60,7 @@ draw_ui :: proc(game: Game) {
 		draw_text("Гекс —", 10, 104, rl.LIGHTGRAY)
 	}
 
-	HELP :: "WASD / стрелки / правая кнопка мыши — двигать карту,   колёсико — масштаб"
+	HELP :: "WASD / стрелки / правая кнопка мыши — двигать карту,   колёсико — масштаб,   N — новая карта"
 	screen_h := f32(rl.GetScreenHeight())
 	rl.DrawRectangleV({0, screen_h - 34}, {measure_text(HELP) + 20, 34}, UI_PANEL_COLOR)
 	draw_text(HELP, 10, screen_h - 28, rl.LIGHTGRAY)

@@ -23,6 +23,10 @@ TERRAIN_NAMES := [Terrain]string {
 	.Mountains = "Горы",
 }
 
+terrain_is_water :: proc(t: Terrain) -> bool {
+	return t == .Ocean || t == .Coast
+}
+
 Tile :: struct {
 	terrain: Terrain,
 }
