@@ -25,4 +25,6 @@ build.bat test   :: прогнать тесты
 
 ## Лицензия
 
-[GPL-3.0](LICENSE)
+Код — [GPL-3.0](LICENSE).
+
+Шрифт [PT Sans](https://fonts.google.com/specimen/PT+Sans) (ParaType) — SIL Open Font License 1.1, см. [assets/fonts/OFL.txt](assets/fonts/OFL.txt).
