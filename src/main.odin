@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-VERSION :: "0.009"
+VERSION :: "0.010"
 TITLE   :: "4X Стратегия v" + VERSION
 
 WINDOW_WIDTH  :: 1280
@@ -17,8 +17,10 @@ Game :: struct {
 	world:   Map,
 	seed:    i64, // зерно генерации текущей карты
 	units:   [dynamic]Unit,
-	camera:  rl.Camera2D,
-	hovered: Maybe(Hex), // гекс под курсором; nil, если курсор не над картой
+	camera:   rl.Camera2D,
+	hovered:  Maybe(Hex), // гекс под курсором; nil, если курсор не над картой
+	selected: Maybe(int), // индекс выбранного юнита в units
+	quit:     bool,
 }
 
 main :: proc() {
@@ -27,6 +29,7 @@ main :: proc() {
 	defer rl.CloseWindow()
 
 	rl.SetTargetFPS(60)
+	rl.SetExitKey(.KEY_NULL) // Esc обрабатываем сами: сначала снимает выбор
 
 	ui_init()
 	defer ui_shutdown()
@@ -38,8 +41,8 @@ main :: proc() {
 	start_new_map(&game, random_seed())
 	game.camera = camera_make(game.world)
 
-	// Игровой цикл: ввод/логика -> отрисовка. Esc закрывает окно (по умолчанию в raylib).
-	for !rl.WindowShouldClose() {
+	// Игровой цикл: ввод/логика -> отрисовка.
+	for !rl.WindowShouldClose() && !game.quit {
 		update(&game, rl.GetFrameTime())
 
 		rl.BeginDrawing()
@@ -55,6 +58,7 @@ start_new_map :: proc(game: ^Game, seed: i64) {
 	game.seed = seed
 	map_generate(&game.world, seed)
 
+	game.selected = nil
 	clear(&game.units)
 	if pos, ok := find_start_position(game.world); ok {
 		append(&game.units, Unit{kind = .Warrior, pos = pos})
@@ -72,6 +76,18 @@ update :: proc(game: ^Game, dt: f32) {
 		h := hex_from_pixel(mouse_world, HEX_SIZE)
 		if map_contains(game.world, h) do game.hovered = h
 	}
+
+	if rl.IsMouseButtonPressed(.LEFT) {
+		game.selected = pick_unit(game.units[:], game.hovered)
+	}
+
+	if rl.IsKeyPressed(.ESCAPE) {
+		if game.selected != nil {
+			game.selected = nil
+		} else {
+			game.quit = true
+		}
+	}
 }
 
 draw :: proc(game: Game) {
@@ -82,6 +98,7 @@ draw :: proc(game: Game) {
 	draw_map(game.world)
 	if h, ok := game.hovered.?; ok do draw_hex_highlight(h, game.camera.zoom)
 	draw_units(game.units[:])
+	if i, ok := game.selected.?; ok do draw_selection(game.units[i], game.camera.zoom)
 	rl.EndMode2D()
 
 	draw_ui(game)

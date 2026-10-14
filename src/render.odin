@@ -58,6 +58,18 @@ draw_units :: proc(units: []Unit) {
 	}
 }
 
+SELECTION_COLOR :: rl.RAYWHITE
+
+// Выбранный юнит: белый контур гекса и пульсирующее кольцо вокруг фишки.
+draw_selection :: proc(unit: Unit, zoom: f32) {
+	center := hex_to_pixel(unit.pos, HEX_SIZE)
+	rl.DrawPolyLinesEx(center, 6, HEX_SIZE, 30, 2.5 / zoom, SELECTION_COLOR)
+
+	pulse := 0.5 + 0.5 * math.sin(f32(rl.GetTime()) * 5) // 0..1, меньше раза в секунду
+	inner: f32 = UNIT_RADIUS + 1
+	rl.DrawRing(center, inner, inner + 2 / zoom, 0, 360, 36, rl.Fade(SELECTION_COLOR, 0.4 + 0.6 * pulse))
+}
+
 // Значки рисуются линиями, поэтому чёткие при любом зуме.
 draw_unit_icon :: proc(kind: Unit_Kind, c: rl.Vector2) {
 	switch kind {

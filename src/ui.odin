@@ -67,25 +67,42 @@ draw_ui :: proc(game: Game) {
 	} else {
 		append(&lines, Ui_Line{"Местность: —", rl.LIGHTGRAY})
 	}
-	draw_info_panel(lines[:])
+	draw_panel(lines[:], {0, 0}, UI_PANEL_MIN_WIDTH)
 
-	HELP :: "WASD / стрелки / правая кнопка мыши — двигать карту,   колёсико — масштаб,   N — новая карта"
+	HELP :: "ЛКМ — выбрать юнит   ПКМ / WASD — двигать карту   Колёсико — масштаб   N — новая карта   Esc — снять выбор / выход"
 	screen_h := f32(rl.GetScreenHeight())
-	rl.DrawRectangleV({0, screen_h - 34}, {measure_text(HELP) + 2 * UI_PADDING, 34}, UI_PANEL_COLOR)
+	rl.DrawRectangleV({0, screen_h - UI_HELP_HEIGHT}, {measure_text(HELP) + 2 * UI_PADDING, UI_HELP_HEIGHT}, UI_PANEL_COLOR)
 	draw_text(HELP, UI_PADDING, screen_h - 28, rl.LIGHTGRAY)
+
+	// Выбранный юнит — панель слева внизу, над подсказкой.
+	if i, ok := game.selected.?; ok {
+		unit := game.units[i]
+		unit_lines := [?]Ui_Line {
+			{fmt.ctprintf("%s", UNIT_NAMES[unit.kind]), rl.RAYWHITE},
+			{fmt.ctprintf("Местность: %s", TERRAIN_NAMES[map_get(game.world, unit.pos).terrain]), rl.LIGHTGRAY},
+			{fmt.ctprintf("Гекс q=%d r=%d", unit.pos.q, unit.pos.r), rl.LIGHTGRAY},
+		}
+		size := panel_size(unit_lines[:], UI_UNIT_PANEL_WIDTH)
+		draw_panel(unit_lines[:], {0, screen_h - UI_HELP_HEIGHT - 8 - size.y}, UI_UNIT_PANEL_WIDTH)
+	}
 }
 
-UI_PADDING       :: 10
-UI_LINE_HEIGHT   :: 24
-UI_PANEL_MIN_WIDTH :: 400 // чтобы панель не дёргалась по ширине при движении мыши
+UI_PADDING          :: 10
+UI_LINE_HEIGHT      :: 24
+UI_HELP_HEIGHT      :: 34
+UI_PANEL_MIN_WIDTH  :: 400 // чтобы панель не дёргалась по ширине при движении мыши
+UI_UNIT_PANEL_WIDTH :: 240
 
-// Панель в левом верхнем углу: по высоте — по числу строк, по ширине — по самой длинной.
-draw_info_panel :: proc(lines: []Ui_Line) {
-	width: f32 = UI_PANEL_MIN_WIDTH
+// Размер панели: по высоте — по числу строк, по ширине — по самой длинной (но не уже min_width).
+panel_size :: proc(lines: []Ui_Line, min_width: f32) -> rl.Vector2 {
+	width := min_width
 	for line in lines do width = max(width, measure_text(line.text) + 2 * UI_PADDING)
-	height := f32(len(lines)) * UI_LINE_HEIGHT + 14
-	rl.DrawRectangleV({0, 0}, {width, height}, UI_PANEL_COLOR)
+	return {width, f32(len(lines)) * UI_LINE_HEIGHT + 14}
+}
+
+draw_panel :: proc(lines: []Ui_Line, pos: rl.Vector2, min_width: f32) {
+	rl.DrawRectangleV(pos, panel_size(lines, min_width), UI_PANEL_COLOR)
 	for line, i in lines {
-		draw_text(line.text, UI_PADDING, 8 + f32(i) * UI_LINE_HEIGHT, line.color)
+		draw_text(line.text, pos.x + UI_PADDING, pos.y + 8 + f32(i) * UI_LINE_HEIGHT, line.color)
 	}
 }

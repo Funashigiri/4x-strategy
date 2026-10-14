@@ -39,3 +39,28 @@ test_unit_at :: proc(t: ^testing.T) {
 	testing.expect(t, unit_at(units, {3, 4}) == &units[1])
 	testing.expect(t, unit_at(units, {0, 0}) == nil)
 }
+
+@(test)
+test_pick_unit :: proc(t: ^testing.T) {
+	units := []Unit{{.Warrior, {1, 2}}, {.Warrior, {3, 4}}}
+	testing.expect_value(t, pick_unit(units, Hex{3, 4}), Maybe(int)(1))
+	testing.expect_value(t, pick_unit(units, Hex{1, 2}), Maybe(int)(0))
+	testing.expect_value(t, pick_unit(units, Hex{0, 0}), Maybe(int)(nil)) // пустой гекс
+	testing.expect_value(t, pick_unit(units, nil), Maybe(int)(nil))       // клик мимо карты
+}
+
+@(test)
+test_new_map_clears_selection :: proc(t: ^testing.T) {
+	game: Game
+	game.world = map_make(40, 24)
+	defer map_destroy(&game.world)
+	defer delete(game.units)
+
+	start_new_map(&game, 1)
+	testing.expect_value(t, len(game.units), 1)
+	game.selected = 0
+
+	start_new_map(&game, 2)
+	testing.expect_value(t, game.selected, Maybe(int)(nil))
+	testing.expect_value(t, len(game.units), 1)
+}

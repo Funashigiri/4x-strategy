@@ -14,10 +14,23 @@ Unit :: struct {
 	pos:  Hex,
 }
 
+unit_index_at :: proc(units: []Unit, h: Hex) -> (index: int, ok: bool) {
+	for u, i in units {
+		if u.pos == h do return i, true
+	}
+	return
+}
+
 // Юнит на гексе или nil.
 unit_at :: proc(units: []Unit, h: Hex) -> ^Unit {
-	for &u in units {
-		if u.pos == h do return &u
+	if i, ok := unit_index_at(units, h); ok do return &units[i]
+	return nil
+}
+
+// Какой юнит выбрать по клику на гекс: индекс юнита на нём, иначе nil (снять выбор).
+pick_unit :: proc(units: []Unit, clicked: Maybe(Hex)) -> Maybe(int) {
+	if h, ok := clicked.?; ok {
+		if i, found := unit_index_at(units, h); found do return i
 	}
 	return nil
 }
